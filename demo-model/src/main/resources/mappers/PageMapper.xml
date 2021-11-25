@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.demo.mybatis.mapper.PageMapper" >
+  <resultMap id="BaseResultMap" type="com.example.demo.mybatis.entity.Page" >
+    <result column="id" property="id" jdbcType="BIGINT" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="path" property="path" jdbcType="VARCHAR" />
+    <result column="is_first" property="isFirst" jdbcType="INTEGER" />
+    <result column="vue_path" property="vuePath" jdbcType="VARCHAR" />
+    <result column="URL" property="URL" jdbcType="VARCHAR" />
+    <result column="icon" property="icon" jdbcType="VARCHAR" />
+    <result column="parent_id" property="parentId" jdbcType="BIGINT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.example.demo.mybatis.entity.Page" extends="BaseResultMap" >
+    <result column="content" property="content" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Blob_Column_List" >
+    content
+  </sql>
+  <insert id="insert" parameterType="com.example.demo.mybatis.entity.Page" >
+    <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into page (title, name, path, 
+      is_first, vue_path, icon, 
+      parent_id, create_time, update_time, 
+      content,URL)
+    values (#{title,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, 
+      #{isFirst,jdbcType=INTEGER}, #{vuePath,jdbcType=VARCHAR}, #{icon,jdbcType=VARCHAR}, 
+      #{parentId,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{content,jdbcType=LONGVARCHAR}),#{URL,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.example.demo.mybatis.entity.Page" >
+    <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into page
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="title != null" >
+        title,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="path != null" >
+        path,
+      </if>
+      <if test="isFirst != null" >
+        is_first,
+      </if>
+      <if test="vuePath != null" >
+        vue_path,
+      </if>
+      <if test="icon != null" >
+        icon,
+      </if>
+      <if test="parentId != null" >
+        parent_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+      <if test="URL != null" >
+        URL,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="path != null" >
+        #{path,jdbcType=VARCHAR},
+      </if>
+      <if test="isFirst != null" >
+        #{isFirst,jdbcType=INTEGER},
+      </if>
+      <if test="vuePath != null" >
+        #{vuePath,jdbcType=VARCHAR},
+      </if>
+      <if test="icon != null" >
+        #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null" >
+        #{parentId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="URL != null" >
+        #{URL,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="update">
+      update page
+      SET title      = #{title,jdbcType=VARCHAR},
+          name     = #{name,jdbcType=VARCHAR},
+          path    = #{path,jdbcType=VARCHAR},
+          is_first = #{isFirst,jdbcType=INTEGER},
+          vue_path = #{vuePath,jdbcType=VARCHAR},
+          icon = #{icon,jdbcType=VARCHAR},
+          parent_id = #{parentId,jdbcType=BIGINT},
+          content = #{content,jdbcType=LONGVARCHAR},
+          URL = #{URL}
+      WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="getFirstMenu" resultMap="ResultMapWithBLOBs">
+    select  * from page where is_first = '1'
+  </select>
+
+  <select id="getChildrenMenu" resultMap="ResultMapWithBLOBs">
+    select  * from page where is_first = '0'
+  </select>
+
+  <select id="queryContentByParentPathAndChildPath" resultMap="ResultMapWithBLOBs">
+    select  * from page where path = #{secondPath,jdbcType=VARCHAR} and parent_id in (select id from page where path = #{firstPath,jdbcType=VARCHAR} )
+  </select>
+</mapper>
